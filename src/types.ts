@@ -1,8 +1,8 @@
 export enum TaskStatus {
-  Pending,
-  Running,
-  Completed,
-  Failed,
+  Pending = "Pending",
+  Running = "Running",
+  Completed = "Completed",
+  Failed = "Failed",
 }
 
 export enum Priority {
