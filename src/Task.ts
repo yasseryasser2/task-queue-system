@@ -1,4 +1,3 @@
-import { profileEnd } from "node:console";
 import { TaskStatus, Priority, ITask } from "./types";
 
 export class Task implements ITask {
@@ -12,10 +11,9 @@ export class Task implements ITask {
   public createdAt: Date;
 
   constructor(
-    id: string,
     name: string,
-    priority: Priority.Medium,
     execute: () => Promise<void>,
+    priority: Priority = Priority.Medium,
     maxRetries: number = 3
   ) {
     this.id = crypto.randomUUID();
@@ -30,11 +28,18 @@ export class Task implements ITask {
   }
 
   public async run(): Promise<void> {
-    this.status = TaskStatus.Pending;
+    this.status = TaskStatus.Running;
 
     try {
-      await this.execute;
+      await this.execute();
       this.status = TaskStatus.Completed;
-    } catch (error) {}
+    } catch (error) {
+      if (this.retryCount < this.maxRetries) {
+        this.retryCount++;
+        throw error;
+      }
+      this.status = TaskStatus.Failed;
+      throw error;
+    }
   }
 }
