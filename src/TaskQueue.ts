@@ -1,3 +1,4 @@
+import { profileEnd } from "node:console";
 import { Task } from "./Task";
 import { TaskStatus } from "./types";
 
@@ -27,5 +28,21 @@ export class TaskQueue {
     this.isProcessing = false;
     console.log("Queue is stopped!");
   }
-  private async processNext(): Promise<void> {}
+  private async processNext(): Promise<void> {
+    const pendingTask = this.tasks.filter(
+      (task) => task.status === TaskStatus.Pending
+    );
+    pendingTask.sort((a, b) => b.priority - a.priority);
+
+    if (
+      !this.isProcessing ||
+      !pendingTask.length ||
+      this.concurrentLimit === 0
+    ) {
+      return;
+    }
+
+    const nextTask = pendingTask[0];
+    // console.log("Processing:", nextTask.name);
+  }
 }
