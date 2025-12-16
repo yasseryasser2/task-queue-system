@@ -29,20 +29,36 @@ export class TaskQueue {
     console.log("Queue is stopped!");
   }
   private async processNext(): Promise<void> {
-    const pendingTask = this.tasks.filter(
-      (task) => task.status === TaskStatus.Pending
-    );
-    pendingTask.sort((a, b) => b.priority - a.priority);
-
-    if (
-      !this.isProcessing ||
-      !pendingTask.length ||
-      this.concurrentLimit === 0
-    ) {
+    if (!this.isProcessing || this.activeTasks >= this.concurrentLimit) {
       return;
     }
 
-    const nextTask = pendingTask[0];
-    // console.log("Processing:", nextTask.name);
+    const pendingTasks = this.tasks.filter(
+      (task) => task.status === TaskStatus.Pending
+    );
+
+    if (pendingTasks.length === 0) {
+      return;
+    }
+
+    pendingTasks.sort((a, b) => b.priority - a.priority);
+    const nextTask = pendingTasks[0]!;
+
+    this.activeTasks++;
+    console.log("Starting task: " + nextTask.name);
+
+    try {
+      await nextTask.run();
+      console.log("Task completed: " + nextTask.name);
+    } catch (error) {
+      if (nextTask.status === TaskStatus.Pending) {
+        console.log("Task failed, retrying: " + nextTask.name);
+      } else {
+        console.log("Task failed permanently: " + nextTask.name);
+      }
+    }
+    this.activeTasks--;
+
+    this.processNext();
   }
 }
