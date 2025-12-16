@@ -1,4 +1,3 @@
-import { profileEnd } from "node:console";
 import { Task } from "./Task";
 import { TaskStatus } from "./types";
 
@@ -60,5 +59,17 @@ export class TaskQueue {
     this.activeTasks--;
 
     this.processNext();
+  }
+
+  public getTaskById(id: string): Task | undefined {
+    return this.tasks.find((task) => task.id === id);
+  }
+
+  public getTasks(): Task[] {
+    return this.tasks;
+  }
+
+  public getTaskByStatus(status: TaskStatus): Task[] {
+    return this.tasks.filter((task) => task.status === status);
   }
 }
