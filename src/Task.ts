@@ -36,6 +36,7 @@ export class Task implements ITask {
     } catch (error) {
       if (this.retryCount < this.maxRetries) {
         this.retryCount++;
+        this.status = TaskStatus.Pending;
         throw error;
       }
       this.status = TaskStatus.Failed;
